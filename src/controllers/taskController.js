@@ -32,3 +32,39 @@ const listTasks = (req, res) => {
   res.statusCode = 200;
   res.end(JSON.stringify(tasks));
 };
+// Atualizar tarefa
+const updateTask = async (req, res, id) => {
+  const body = await getRequestBody(req);
+
+  const task = taskService.updateTask(id, body.title);
+
+  if (!task) {
+    res.statusCode = 404;
+    return res.end(JSON.stringify(
+      { message: 'Não encontrada' }
+    ));
+  }
+
+  res.end(JSON.stringify(task));
+};
+
+// Deletar tarefa
+const deleteTask = (req, res, id) => {
+  const success = taskService.deleteTask(id);
+
+  if (!success) {
+    res.statusCode = 404;
+    return res.end(JSON.stringify(
+      { message: 'Não encontrada' }
+    ));
+  }
+
+  res.end(JSON.stringify({ message: 'Removida' }));
+};
+
+module.exports = {
+  createTask,
+  listTasks,
+  updateTask,
+  deleteTask
+};
