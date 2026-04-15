@@ -1,69 +1,34 @@
 const taskService = require('../services/taskService');
 
-function handleCreateTask(req, res) {
-  let body = '';
+// Função auxiliar para ler body
+const getRequestBody = (req) => {
+  return new Promise((resolve, reject) => {
+    let body = '';
 
-  req.on('data', chunk => {
-    body += chunk;
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', () => {
+      resolve(JSON.parse(body));
+    });
   });
+};
 
-  req.on('end', () => {
-    try {
-      const data = JSON.parse(body);
-      const task = taskService.createTask(data.title);
+// Criar tarefa
+const createTask = async (req, res) => {
+  const body = await getRequestBody(req);
 
-      res.writeHead(201, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(task));
-    } catch (error) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ message: error.message }));
-    }
-  });
-}
+  const task = taskService.addTask(body.title);
 
-function handleGetTasks(req, res) {
+  res.statusCode = 201;
+  res.end(JSON.stringify(task));
+};
+
+// Listar tarefas
+const listTasks = (req, res) => {
   const tasks = taskService.getTasks();
 
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.statusCode = 200;
   res.end(JSON.stringify(tasks));
-}
-
-function handleUpdateTask(req, res, id) {
-  let body = '';
-
-  req.on('data', chunk => {
-    body += chunk;
-  });
-
-  req.on('end', () => {
-    try {
-      const data = JSON.parse(body);
-      const updated = taskService.updateTask(id, data);
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(updated));
-    } catch (error) {
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ message: error.message }));
-    }
-  });
-}
-
-function handleDeleteTask(req, res, id) {
-  try {
-    const result = taskService.deleteTask(id);
-
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(result));
-  } catch (error) {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: error.message }));
-  }
-}
-
-module.exports = {
-  handleCreateTask,
-  handleGetTasks,
-  handleUpdateTask,
-  handleDeleteTask
 };
