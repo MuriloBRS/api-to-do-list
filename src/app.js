@@ -1,7 +1,7 @@
 const http = require('http');
 
 // Importa as rotas
-const taskRoutes = require('./routes/tasks');
+const taskRoutes = require('./routes/taskRoutes.js');
 
 // Cria servidor
 const server = http.createServer((req, res) => {
